@@ -1,0 +1,15 @@
+local:
+  api_key: "0000000000000000000000000000000000000000"
+  base_uri: "http://localhost:3000"
+
+sandbox:
+  api_key: "0000000000000000000000000000000000000000"
+  base_uri: "http://sandbox.nationaldatacatalog.com"
+
+staging:
+  api_key: "0000000000000000000000000000000000000000"
+  base_uri: "http://api.staging.nationaldatacatalog.com"
+
+production:
+  api_key: "0000000000000000000000000000000000000000"
+  base_uri: "http://api.nationaldatacatalog.com"

@@ -1,13 +1,13 @@
 require 'open-uri'
 require 'nokogiri'
 
-
 require File.dirname(__FILE__) + '/output'
 require File.dirname(__FILE__) + '/utility'
 
 class Puller
 
 	U = DataCatalog::Utility
+
 	REQUIRED = %w(cache_folder name uri puller)        
 
 	FORCE_FETCH = false # true
@@ -33,8 +33,6 @@ class Puller
 			collection, organization = get_catalog_data(doc)
 			parse_source(collection)
 			parse_organization(organization)
-			#write the raw index data in /cache/raw/index.xml
-			#U.write_yaml(@index_data, metadata)
 		end
 	end
 

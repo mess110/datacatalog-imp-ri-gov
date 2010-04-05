@@ -1,7 +1,7 @@
 module DataCatalog
 	module Importer
 		class Tasks
-  
+
 			def initialize(options)
 				define(options)
 			end
@@ -20,6 +20,7 @@ module DataCatalog
 
 				desc "Pull data from the #{options[:name]}"
 				task :pull do
+					desc "Pull data from the #{options[:name]}"
 					puller = Puller.new(options)
 					puller.run
 				end

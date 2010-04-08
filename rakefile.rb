@@ -1,5 +1,5 @@
-require File.dirname(__FILE__) + '/lib/puller'
-require File.dirname(__FILE__) + '/lib/tasks'
+require File.dirname(__FILE__) + '/lib/organization_puller'
+require File.dirname(__FILE__) + '/lib/source_puller'
 
 def setup
   config_file = File.dirname(__FILE__) + '/config.yml'
@@ -10,10 +10,13 @@ def setup
   DataCatalog::Importer::Tasks.new({
     :api_key      => config[env]['api_key'],
     :base_uri     => config[env]['base_uri'],
-    :cache_folder => '/cache/parsed',
+    :cache_folder => File.dirname(__FILE__) + '/cache/parsed',
     :name         => "District of Rhode Island Data Catalog",
     :uri          => "http://www.ri.gov/data/",
-	:puller      =>  Puller
+	:pullers	  =>  {
+		:source			=> OrganizationPuller,
+		:organization 	=> SourcePuller,
+	}
   })
 end
 

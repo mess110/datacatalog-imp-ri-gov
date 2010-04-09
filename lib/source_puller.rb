@@ -15,6 +15,8 @@ class SourcePuller < Puller
 		#now we need to parse each individual peace of data
 		#ok now think. I don't have any direct xml link so I am actually gathering links that point to a website that points to usefull data
 		@source.each do |data|
+			timey = Time.parse(data[1])
+
 			source = 
 			{
 				:catalog_name	=>	@catalog_name,
@@ -27,7 +29,11 @@ class SourcePuller < Puller
 					:name		=>	data[9],
 				},
 				#:site_category =>	data[10], 	#optional
-				:released		=>	data[1],
+				:released		=>	{
+					:day		=> timey.strftime("%d").to_i,
+					:month		=> timey.strftime("%m").to_i,
+					:year		=> timey.strftime("%Y").to_i,
+				},
 				#:updated		=>	data[7],	#optional
 				:source_type	=>	"dataset",
 				:title			=>	data[5],

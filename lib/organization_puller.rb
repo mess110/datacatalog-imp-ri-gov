@@ -17,18 +17,24 @@ class OrganizationPuller < Puller
 		@organization.each do |data|
 			source = 
 			{
-				:catalog_url => "http://ri.gov/data",
+				:organization => {
+					:name => "District of Rhode Island"
+				},
+				:catalog_url => "http://ri.gov/data/agencies",
 				:description => "Plans, develops, and implements the use of new technology for District agencies to improve delivery of services to residents, businesses and visitors.",
-				:home_url => data[6],
+				:home_url => "http://" + data[6],
 				:name => data[3],
 				:org_type => "governmental",
-				:organization => {
-					:name => "District of Columbia,",
-				},
-				:url => "http://ri.gov/data",
+				#:organization => {
+				#	:name => "District of Rhode Island",
+				#},
+				:url => "http://" + data[6],
 				#:active_organizations
 				#:jurisditcions
 			}
+
+			if source[:name] != ""
+			
 #--- 
 #:catalog_url: http://dc.gov/agencies
 #:description: Offers comprehensive, integrated healthcare to medically underserved residents in Washington, DC.
@@ -39,10 +45,11 @@ class OrganizationPuller < Puller
 #  :name: District of Columbia
 #:url: http://dc.gov/agencies/detail.asp?id=1030
 
-			yml_file = @parse_file + ("/%08i.yml" % data[0])
+			yml_file = @parse_file + ("/%08i.yml" % (data[0].to_i + 1).to_s)
 			#no timestamps here so caching is a little more primitive
 			#write source if it is different from cached version
 			U.write_yaml(yml_file, source) if U.fetch_yaml(yml_file) != source rescue U.write_yaml(yml_file, source)
+			end
 		end
 	end
 

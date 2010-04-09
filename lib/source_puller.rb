@@ -34,8 +34,14 @@ class SourcePuller < Puller
 				:url			=>	data[4],
 				#:tags			=>	data[8],
 			}
+			if source[:organization][:name] == ""
+				source[:organization][:name] = "District of Rhode Island"
+			end
+			if source[:title] == ""
+				source[:title] = "Rhode Island Service"
+			end
 
-			yml_file = @parse_file + ("/%08i.yml" % data[0])
+			yml_file = @parse_file + ("/%08i.yml" % (data[0].to_i + 1).to_s)
 			#if the file was not saved before save it
 			#if it was saved before and the saved timestamp is older than the new one, change it
 			#caching is handled by last update :)

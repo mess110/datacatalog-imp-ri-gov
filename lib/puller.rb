@@ -19,57 +19,86 @@ class Puller
 	def fetch
 		sleep(FETCH_DELAY)
 		document = U.parse_xml_from_file_or_uri(@base_uri, @index_xml, :force_fetch => FORCE_FETCH)
-		@source, @organization = get_metadata_data( document )
+		@source, @organization = get_metadata( document )
 		parse_metadata
 		return nil
 	end
 
 	protected
 
-	def get_metadata_data ( doc )
+	def get_metadata ( doc )
 		#create array with all the elements
-		source = Array.new
-		organization = Array.new
+		source = []
+		organization = []
 
-		doc.xpath('/hash/links/link').each do |link|
+		doc.xpath('/hash/links/link').each do |node|
 
 			#GET SOURCE DATA
-			date_inserted = link.xpath('date-inserted').inner_text
-			description = link.xpath('description').inner_text
-			#hostname of the service
-			hostname = link.xpath('hostname').inner_text
-			#link of the service
-			linkk = link.xpath('link').inner_text
-			title = link.xpath('title').inner_text
-			title_iwantto = link.xpath('title-iwantto').inner_text
-			#last update
-			updatedat = link.xpath('updated-at').inner_text
+			date_inserted		=	node.xpath('date-inserted').inner_text
+			description			= node.xpath('description').inner_text
+			hostname				= node.xpath('hostname').inner_text
+			url							= node.xpath('link').inner_text
+			title						= node.xpath('title').inner_text
+			#title_i_want_to
+			title_i_want_to = node.xpath('title-iwantto').inner_text
+			updated_at				= node.xpath('updated-at').inner_text
 			#get tags
-			tags = Array.new
-			link.xpath('tags/tag').each do |tag|
+			tags = []
+			node.xpath('tags/tag').each do |tag|
 				tags << tag.inner_text
 			end
 
 			#GET ORGANIZATION DATA
-			site_category = link.xpath('hname/site-category').inner_text
-			sos_entity_id = link.xpath('hname/sos-entity-id').inner_text
-			org_title = link.xpath('hname/title')[0].inner_text rescue title = '' #since there are more thigns that start with title.. get the first one. if there is no first one than put default to ''
-			title_abbrev = link.xpath('hname/title-abbrev').inner_text
-			title_alpha = link.xpath('hname/title-alpha').inner_text
+			site_category		= node.xpath('hname/site-category').inner_text
+			sos_entity_id		= node.xpath('hname/sos-entity-id').inner_text
+			#since there are more things that start with title.. get the
+			#first one. If there is no first one, assign title = ''
+			org_title				= node.xpath('hname/title')[0].inner_text rescue title = ''
+			title_abbrev		= node.xpath('hname/title-abbrev').inner_text
+			title_alpha			= node.xpath('hname/title-alpha').inner_text
 
+			#fix malformed formats
+			#hostname has to begin with http://
+			  #include UrlValidator
+  			#validate hostname
 
 			#populate the collection
-			source << [source.size, date_inserted, description, hostname, linkk, title, title_iwantto, updatedat, tags, org_title, site_category]
+			foo = {
+				:id								=>	source.size + 1,
+				:date_inserted		=>	date_inserted,
+				:description			=>	description,
+				:hostname					=>	hostname,
+				:url							=>	url,
+				:title						=>	title,
+				#short phrase to describe what the service does
+				#ex: <title-iwantto>renew my car insurance</title-iwantto>
+				:title_i_want_to	=>	title_i_want_to,
+				:updated_at				=>	updated_at,
+				:tags							=>	tags,
+				:org_title				=>	org_title,
+				:site_category		=>	site_category,
+			}
+
+			source << foo
 
 			#populate organizations
 			#should I insert it? is it a duplicate?
 			#gotta love ruby blocks <3
-			insert = organization.find { |org| org[3] == org_title }
-			organization << [organization.size, site_category, sos_entity_id, org_title, title_abbrev, title_alpha, hostname] if insert == nil
+			insert = organization.find { |org| org[:org_title] == org_title }
+			#foo = nil
+			foo = {
+				:id								=>	organization.size + 1,
+				:site_category		=>	site_category,
+				:sos_entity_id		=>	sos_entity_id,
+				:org_title				=>	org_title,
+				:title_abbrev			=>	title_abbrev,
+				:title_alpha			=>	title_alpha,
+				:hostname					=>	hostname,
+			}
+			organization << foo if insert == nil
 			
 		end
-
-		return source, organization
+		[source, organization]
 	end
 
 end

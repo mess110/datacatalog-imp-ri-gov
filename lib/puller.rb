@@ -40,12 +40,12 @@ class Puller
       #GET SOURCE DATA
       date_inserted    =  node.xpath('date-inserted').inner_text
       description      = node.xpath('description').inner_text
-      hostname        = node.xpath('hostname').inner_text
+      hostname         = node.xpath('hostname').inner_text
       url              = node.xpath('link').inner_text
       title            = node.xpath('title').inner_text
       #title_i_want_to
-      title_i_want_to = node.xpath('title-iwantto').inner_text
-      updated_at        = node.xpath('updated-at').inner_text
+      title_i_want_to  = node.xpath('title-iwantto').inner_text
+      updated_at       = node.xpath('updated-at').inner_text
       #get tags
       tags = []
       node.xpath('tags/tag').each do |tag|
@@ -58,7 +58,7 @@ class Puller
       #since there are more things that start with title.. get the
       #first one. If there is no first one, assign title = ''
       org_title        = node.xpath('hname/title')[0].inner_text rescue title = ''
-      title_abbrev    = node.xpath('hname/title-abbrev').inner_text
+      title_abbrev     = node.xpath('hname/title-abbrev').inner_text
       title_alpha      = node.xpath('hname/title-alpha').inner_text
 
       #fix malformed formats
@@ -68,17 +68,17 @@ class Puller
 
       #populate the collection
       foo = {
-        :id                =>  source.size + 1,
+        :id               =>  source.size + 1,
         :date_inserted    =>  date_inserted,
         :description      =>  description,
-        :hostname          =>  hostname,
+        :hostname         =>  hostname,
         :url              =>  url,
         :title            =>  title,
         #short phrase to describe what the service does
         #ex: <title-iwantto>renew my car insurance</title-iwantto>
         :title_i_want_to  =>  title_i_want_to,
-        :updated_at        =>  updated_at,
-        :tags              =>  tags,
+        :updated_at       =>  updated_at,
+        :tags             =>  tags,
         :org_title        =>  org_title,
         :site_category    =>  site_category,
       }
@@ -91,13 +91,13 @@ class Puller
       insert = organization.find { |org| org[:org_title] == org_title }
       #foo = nil
       foo = {
-        :id                =>  organization.size + 1,
+        :id               =>  organization.size + 1,
         :site_category    =>  site_category,
         :sos_entity_id    =>  sos_entity_id,
         :org_title        =>  org_title,
-        :title_abbrev      =>  title_abbrev,
+        :title_abbrev     =>  title_abbrev,
         :title_alpha      =>  title_alpha,
-        :hostname          =>  hostname,
+        :hostname         =>  hostname,
       }
       organization << foo if insert == nil
       

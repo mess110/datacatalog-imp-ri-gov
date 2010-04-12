@@ -13,9 +13,9 @@ def setup
     :cache_folder => File.dirname(__FILE__) + '/cache/parsed',
     :name         => "District of Rhode Island Data Catalog",
     :uri          => "http://www.ri.gov/data/",
-    :pullers      =>  {
-      :source         => SourcePuller,
-      :organization   => OrganizationPuller,
+    :pullers	  =>  {
+    	:source	  	=> SourcePuller,
+	:organization 	=> OrganizationPuller,
     },
   })
 end

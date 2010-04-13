@@ -11,8 +11,6 @@ class SourcePuller < Puller
   protected
 
   def parse_metadata
-    #now we need to parse each individual peace of data
-    #ok now think. I don't have any direct xml link so I am actually gathering links that point to a website that points to usefull data
     @source.each do |data|
       #
       release_time = Time.parse(data[:date_inserted])
@@ -45,14 +43,14 @@ class SourcePuller < Puller
         source[:title] = "Rhode Island Service"
       end
 
-      #the file path which we are working on
       yml_file = "%s/%08i.yml" % [@parse_file, data[:id]]
       #if the file was not saved before save it
       #if it was saved before and the saved timestamp is older than the new one, change it
-      #caching is handled by last update :)
+      #caching is handled by last update
       begin
         back_then = Time.parse(YAML::load(File.open(yml_file))[:updated])
         right_now = Time.parse(data[:updated_at])
+
         if (back_then < right_now)
           U.write_yaml(yml_file, source)
         end

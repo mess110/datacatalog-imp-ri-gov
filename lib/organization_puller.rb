@@ -11,8 +11,6 @@ class OrganizationPuller < Puller
   protected
 
   def parse_metadata
-    #now we need to parse each individual peace of data
-    #ok now think. I don't have any direct xml link so I am actually gathering links that point to a website that points to usefull data
     @organization.each do |data|
       source = 
       {
@@ -27,12 +25,12 @@ class OrganizationPuller < Puller
 
       #don't upload organizations that don't have a name
       if source[:name] != ""
-        #the file path which we are working on
         yml_file = "%s/%08i.yml" % [@parse_file, data[:id]]
         #no timestamps here so caching is a little more primitive
         #write source if it is different from cached version
-
-        U.write_yaml(yml_file, source) if U.fetch_yaml(yml_file) != source rescue U.write_yaml(yml_file, source)
+        if U.fetch_yaml(yml_file) != source 
+		U.write_yaml(yml_file, source)
+	end rescue U.write_yaml(yml_file, source)
       end
     end
   end

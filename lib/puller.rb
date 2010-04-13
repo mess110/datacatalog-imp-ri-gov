@@ -31,7 +31,7 @@ class Puller
   protected
 
   def get_metadata ( doc )
-    #create array with all the elements
+
     source = []
     organization = []
 
@@ -43,10 +43,10 @@ class Puller
       hostname         = node.xpath('hostname').inner_text
       url              = node.xpath('link').inner_text
       title            = node.xpath('title').inner_text
-      #title_i_want_to
+      #short title to describe what the service does
+      #ex: <title-iwantto>renew my car insurance</title-iwantto>
       title_i_want_to  = node.xpath('title-iwantto').inner_text
       updated_at       = node.xpath('updated-at').inner_text
-      #get tags
       tags = []
       node.xpath('tags/tag').each do |tag|
         tags << tag.inner_text
@@ -61,12 +61,6 @@ class Puller
       title_abbrev     = node.xpath('hname/title-abbrev').inner_text
       title_alpha      = node.xpath('hname/title-alpha').inner_text
 
-      #fix malformed formats
-      #hostname has to begin with http://
-        #include UrlValidator
-        #validate hostname
-
-      #populate the collection
       foo = {
         :id               =>  source.size + 1,
         :date_inserted    =>  date_inserted,
@@ -74,7 +68,7 @@ class Puller
         :hostname         =>  hostname,
         :url              =>  url,
         :title            =>  title,
-        #short phrase to describe what the service does
+        #short title to describe what the service does
         #ex: <title-iwantto>renew my car insurance</title-iwantto>
         :title_i_want_to  =>  title_i_want_to,
         :updated_at       =>  updated_at,
@@ -85,11 +79,9 @@ class Puller
 
       source << foo
 
-      #populate organizations
-      #should I insert it? is it a duplicate?
-      #gotta love ruby blocks <3
+      #in case the organization doesn't have a title, don't add it.
       insert = organization.find { |org| org[:org_title] == org_title }
-      #foo = nil
+
       foo = {
         :id               =>  organization.size + 1,
         :site_category    =>  site_category,

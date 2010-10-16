@@ -4,60 +4,41 @@ require File.dirname(__FILE__) + '/output'
 class SourcePuller < Puller
 
   def initialize
-    @parse_file  = Output.dir "/../cache/parsed/source"
+    @base_uri = 'http://www.ri.gov/links/?tags=online+service&ret=xml'
+    @index_data     = Output.file '/../cache/raw/source/index.yml'
+    @index_html     = Output.file '/../cache/raw/source/index.html'
     super
   end
 
   protected
 
-  def parse_metadata
-    @source.each do |data|
-      #
-      release_time = Time.parse(data[:date_inserted])
+  def get_metadata doc
+    metadata = []
+    doc.xpath('/hash/links/link').each do |node|
 
-      source = 
-      {
-        :catalog_name    =>  @catalog_name,
-        :catalog_url     =>  @catalog_url, 
-        :description     =>  data[:description],
-        :frequency       =>  "unknown",
-        :organization    =>  {
-          :home_url        =>  data[:hostname],
-          :name            =>  data[:org_title],  #organization title
-        },
-        :released        => {
-          :day             =>   release_time.strftime("%d").to_i,
-          :month           =>   release_time.strftime("%m").to_i,
-          :year            =>   release_time.strftime("%Y").to_i,
-        },
-        :source_type     =>  "dataset",
-        :title           =>  data[:title],
-        :url             =>  data[:url],
+      tags = []
+      node.xpath('tags/tag').each do |tag|
+       tags << tag.inner_text
+      end
+
+      metadata << {
+        # there are like 4-5 orgs. is this worth it?
+        #:date_inserted    =>  node.xpath('date-inserted').inner_text,
+        :description      =>  node.xpath('description').inner_text,
+        :hostname         =>  node.xpath('hostname').inner_text,
+        :url              =>  node.xpath('link').inner_text,
+        :title            =>  node.xpath('title').inner_text,
+        #short title to describe what the service does
+        #ex: <title-iwantto>renew my car insurance</title-iwantto>
+        :title_i_want_to  =>  node.xpath('title-iwantto').inner_text,
+        :updated_at       =>  node.xpath('updated-at').inner_text,
+        :tags             =>  tags
       }
-
-      if source[:organization][:name] == ""
-        source[:organization][:name] = "District of Rhode Island"
-      end
-
-      if source[:title] == ""
-        source[:title] = "Rhode Island Service"
-      end
-
-      yml_file = "%s/%08i.yml" % [@parse_file, data[:id]]
-      #if the file was not saved before save it
-      #if it was saved before and the saved timestamp is older than the new one, change it
-      #caching is handled by last update
-      begin
-        back_then = Time.parse(YAML::load(File.open(yml_file))[:updated])
-        right_now = Time.parse(data[:updated_at])
-
-        if (back_then < right_now)
-          U.write_yaml(yml_file, source)
-        end
-      end rescue U.write_yaml(yml_file, source)
-      #TODO debugging purpose only
-      U.write_yaml(yml_file, source) #erase this after
     end
+    metadata
+  end
+
+  def parse_metadata
   end
 
 end

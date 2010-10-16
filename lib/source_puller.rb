@@ -4,7 +4,6 @@ require File.dirname(__FILE__) + '/output'
 class SourcePuller < Puller
 
   def initialize
-    @base_uri = 'http://www.ri.gov/links/?tags=online+service&ret=xml'
     @index_data     = Output.file '/../cache/raw/source/index.yml'
     @index_html     = Output.file '/../cache/raw/source/index.html'
     super
@@ -21,24 +20,49 @@ class SourcePuller < Puller
        tags << tag.inner_text
       end
 
+      title_org = node.xpath('hname/title')[0]
+      begin
+        title_org = title_org.inner_text
+        if title_org == ""
+          title_org = "Rhode Island"
+        end
+      rescue
+        title_org = "Rhode Island"
+      end
+
       metadata << {
-        # there are like 4-5 orgs. is this worth it?
-        #:date_inserted    =>  node.xpath('date-inserted').inner_text,
-        :description      =>  node.xpath('description').inner_text,
-        :hostname         =>  node.xpath('hostname').inner_text,
-        :url              =>  node.xpath('link').inner_text,
-        :title            =>  node.xpath('title').inner_text,
+        :date_inserted    => node.xpath('date-inserted').inner_text,
+        :description      => U.multi_line_clean(
+                                node.xpath('description').inner_text),
+        :hostname         => "http://" + node.xpath('hostname').inner_text,
+        :url              => URI.unescape(node.xpath('link').inner_text),
+        :title            => node.xpath('title').inner_text,
         #short title to describe what the service does
         #ex: <title-iwantto>renew my car insurance</title-iwantto>
-        :title_i_want_to  =>  node.xpath('title-iwantto').inner_text,
-        :updated_at       =>  node.xpath('updated-at').inner_text,
-        :tags             =>  tags
+        :title_i_want_to  => node.xpath('title-iwantto').inner_text,
+        :updated_at       => node.xpath('updated-at').inner_text,
+        :title_org        => title_org,
+        :tags             => tags
       }
     end
     metadata
   end
 
-  def parse_metadata
+  def parse_metadata metadata
+    {
+      :title        => metadata[:title],
+      :description  => metadata[:description],
+      :frequency    => "unknown",
+      :source_type  => "dataset",
+      :catalog_name => "ri.gov",
+      :downloads    => [],
+      :catalog_url  => @base_uri,
+      :url          => metadata[:url],
+      :organization => {
+        :url  => metadata[:hostname],
+        :name => metadata[:title_org]
+      }
+    }
   end
 
 end

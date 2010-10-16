@@ -11,7 +11,7 @@ def setup
     :api_key        => config[env]['api_key'],
     :base_uri       => config[env]['base_uri'],
     :cache_folder   => File.dirname(__FILE__) + '/cache/parsed',
-    :name           => "District of Rhode Island Data Catalog",
+    :name           => "Rhode Island",
     :uri            => "http://www.ri.gov/data/",
     :pullers        =>  {
       :source         => SourcePuller,
